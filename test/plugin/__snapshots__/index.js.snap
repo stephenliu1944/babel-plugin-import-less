@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`works 1`] = `
+"\\"use strict\\";
+
+var _index = require(\\"antd/lib/index\\");
+
+var RangePicker = _index.DatePicker.RangePicker;"
+`;
