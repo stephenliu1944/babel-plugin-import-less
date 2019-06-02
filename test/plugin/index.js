@@ -1,5 +1,6 @@
 import { transform } from '@babel/core';
 import plugin from '../../src/index';
+import { join } from 'path';
 
 // import styles from './home.scss';
 // import React, { Component } from 'react';
@@ -65,4 +66,13 @@ it('works', () => {
     });
     
     expect(code).toMatchSnapshot();
+});
+
+it('path', () => {
+    console.log('xxx aaa: ', join('xxx', 'aaa', '../bbb'));
+    console.log('/xxx aaa ', join('/xxx', 'aaa'));
+    console.log('/xxx/ aaa: ', join('/xxx/', 'aaa'));
+    console.log('/xxx/ /aaa: ', join('/xxx/', '/aaa'));
+    console.log('/xxx /aaa: ', join('/xxx', '/aaa'));
+    console.log('/xxx /aaa/: ', join('/xxx', '/aaa/'));
 });

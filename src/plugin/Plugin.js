@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { addSideEffect, addDefault, addNamed } from '@babel/helper-module-imports';
 import { NamingRule } from 'constants/common';
-import { isString, isFunction, isNotBlank } from 'utils/common';
+import { isString, isFunction, isObject, isArray, isEmpty, isBlank, isNotBlank } from 'utils/common';
 import * as helpers from 'helpers/string';
 
 var { toLittleCamel, toBigCamel, toDash, toUnderline } = helpers;
@@ -13,47 +13,57 @@ var RuleHandler = {
     [UNDERLINE]: toUnderline
 };
 
-function buildNameByRule(name, rule) {
-    var ruleName;
-
-    if (RuleHandler[rule]) {
-        ruleName = RuleHandler[rule](name);
-    } else if (isFunction(rule)) {
-        ruleName = buildNameByRule(name, rule(name));   // 可能 function 返回 'little-camel'等规则
-    } else if (isString(rule)) {                        // 明确的命名
-        ruleName = rule.trim();
-    } else {
-        ruleName = name;
-    }
-
-    /*   switch (rule) {
-        case NamingRule.LITTLE_CAMEL:   // 小驼峰
-            name = toLittleCamel(name);
-            break;
-        case NamingRule.BIG_CAMEL:      // 大驼峰
-            name = toBigCamel(name);
-            break;
-        case NamingRule.DASH:           // 中横线
-            name = toDash(name);
-            break;
-        case NamingRule.UNDERLINE:     // 下划线
-            name = toUnderline(name);
-            break;
-        default:
-            if (isString(rule)) {       // specific name
-                name = rule.trim();
-            } else if (isFunction(rule)) {
-                name = rule(name, helpers);
-                if(){
-
-                }
-            }
-    } */
-
-    return ruleName;
+function getPathDir(path = '') {
+    // 解析这 6 种 URL:
+    // 'xxx'
+    // '/xxx'
+    // 'xxx/'
+    // '/xxx/'
+    // '/xxx/xxx'
+    // 'xxx.js'
+    // '/xxx.js'
+    // 'xxx/xxx.js'
+    // '/xxx/xxx.js'
+    // 替换掉 '/xxx.js' 部分
+    return path.replace(/(\/?[_\w]+\.\w+)$/, '');
 }
 
-function buildPath(...args) {
+function buildNameByRule(importName, filename = '') {
+    var newImportName;
+
+    if (filename === null || filename === false) {
+        return null;
+    }
+
+    if (isFunction(filename)) {
+        newImportName = buildNameByRule(importName, filename(importName));   // 可能 function 返回 'little-camel'等规则
+    } else if (isString(filename) && isNotBlank(filename)) {                        // 明确的命名
+        filename = filename.trim();
+
+        // 移除开头的 "/", 没有意义.
+        // if (filename.startsWith('/')) {
+        //     filename = filename.slice(1);
+        // }
+        // 根据4种规则 [xxx], 替换其中的字符
+        // '[dash]/[little].js'.replace(/(\[[\-\w]+\])/g, (match, p1) => {
+        newImportName = filename.replace(/(\[[\-\w]+\])/g, (match, p1) => {
+            var component = p1;
+            var mark = p1.slice(1, -1);
+            var handler = RuleHandler[mark];
+            // 判断是否在 4 种规则中
+            if (handler) {
+                component = handler(importName);
+            } 
+            return component;
+        });
+    } else {
+        newImportName = importName;
+    }
+
+    return newImportName;
+}
+
+function joinPath(...args) {
     var paths = args.map(path => path || '');
     return join(...paths).replace(/\\/g, '/');
 }
@@ -71,10 +81,11 @@ export default class Plugin {
     setOptions(options) {
         // default setting    
         this._options = Object.assign({
-            directory: null,
-            namingRule: NamingRule.BIG_CAMEL,
+            library: null,
+            // directory: null,
+            filename: `[${NamingRule.BIG_CAMEL}]`,
             importDefault: true,
-            style: false
+            style: false    // string, function, object, array
         }, options);
     }
 
@@ -137,6 +148,33 @@ export default class Plugin {
         }
     }
 
+    importStyle(style, directory, specifier, path) {
+        let { filename } = style;
+        let { library } = this._options;
+        let { imported, local } = specifier;
+        let styleRootPath = directory;      // style 路径默认使用 /library/directory
+        let styleName = '';
+
+        if ((isString(filename) && filename.startsWith('/'))
+            || isEmpty(directory)) {   
+            // '/less/component' > '/library/less/component'.
+            styleRootPath = library;
+        } 
+
+        // 处理style的命名规则(folder or file)
+        styleName = buildNameByRule(imported.name, filename);
+
+        // 用户手动设置 null 表示不想添加
+        if (styleName === null) {   
+            return;
+        }
+       
+        // 处理style的全路径
+        let stylePath = joinPath(styleRootPath, styleName);
+        // 添加 style 节点
+        addSideEffect(path, stylePath);
+    }
+
     // 根据大写字母开头的方法来筛选 Visitor
     getVisitor() {
         var visitor = {};
@@ -175,21 +213,25 @@ export default class Plugin {
         }
 
         var source = path.node.source.value;
-        var { library, directory, namingRule, importDefault, style } = this._options;
+        var { library, filename, importDefault, style } = this._options;
         
         if (source === library) {
             path.node.specifiers.forEach((specifier) => {
                 if (this.types.isImportSpecifier(specifier)) {
                     var { imported, local } = specifier;
                     // 处理组件的命名规则(folder or file)
-                    var componentName = buildNameByRule(imported.name, namingRule);
-                    // 处理组件的全路径, /library/directory/componentName
-                    var componentPath = buildPath(library, directory, componentName);
+                    var componentName = buildNameByRule(imported.name, filename);
+
+                    if (componentName === null) {   
+                        return;
+                    }
+                    // 处理组件的全路径, /library/componentName
+                    var componentPath = joinPath(library, componentName);
                     
                     var newImportDeclaration;
                     // 添加修改过路径的新 JS 节点
                     if (importDefault) {
-                        newImportDeclaration = addDefault(path, componentPath);            // import hintedName from "source"
+                        newImportDeclaration = addDefault(path, componentPath);            // import defaultName from "source"
                     } else {
                         newImportDeclaration = addNamed(path, local.name, componentPath);  // import { named } from "source"
                     }
@@ -197,36 +239,15 @@ export default class Plugin {
                     // 保存需要替换的标识符 Identifier 名称, 注意: 可能会和其他地方的局部变量标识符重复, 确保path.type是ImportSpecifier
                     this.markIdentifiers[local.name] = newImportDeclaration;
 
-                    // handle style node
-                    if (style) {
-                        let { directory: _directory, namingRule: _namingRule, ext } = style;
-                        // style 路径默认使用 /library/directory
-                        let styleDirectory = buildPath(library, directory);     // set default directory
-                        let styleName = '';
-                        let extension = '';
-
-                        if (_directory) {
-                            if (_directory.startsWith('/')) {   
-                                // 从根路径开始设置样式路径, 说明样式文件保存在和组件不同的目录, 如: '/less/component' to '/library/less/component'.
-                                styleDirectory = buildPath(library, _directory);
-                            } else {                            
-                                // 在 componentPath 后追加路径, 说明样式文件保存在组件下的目录, 如: 'style' to '/library/directory/componentName/style'.
-                                styleDirectory = buildPath(componentPath, _directory);
-                            }
-                        } 
-                        
-                        if (_namingRule) {
-                            // 处理style的命名规则(folder or file)
-                            styleName = buildNameByRule(imported.name, _namingRule);
-                        } 
-
-                        if (isNotBlank(ext)) {
-                            extension = ext.trim().startsWith('.') ? ext : '.' + ext;
-                        } 
-                        // 处理style的全路径
-                        let stylePath = buildPath(styleDirectory, styleName + extension);
-                        // 添加 style 节点
-                        addSideEffect(path, stylePath);
+                    // Handle Style Node --------------------------------------
+                    // TODO: style 扩展为附件, 为对象或数组, 不特定为导入某个类型.
+                    var componentDirectory = getPathDir(componentPath);
+                    if (isArray(style)) {
+                        style.forEach(styleOpts => this.importStyle(styleOpts, componentDirectory, specifier, path));
+                    } else if (isObject(style)) {
+                        this.importStyle(style, componentDirectory, specifier, path);
+                    } else if (isString(style) || isFunction(style)) {
+                        this.importStyle({ filename: style }, componentDirectory, specifier, path);
                     }
                 }
             });
