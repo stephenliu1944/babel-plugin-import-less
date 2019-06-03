@@ -13,7 +13,7 @@ babel.config.js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'lodash',
-        namingRule: 'little-camel'  // use lodash/xxXX
+        module: '[little-camel]'
     }]
 ];
 ```
@@ -33,13 +33,11 @@ babel.config.js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'antd',
-        directory: 'lib',           
-        namingRule: 'dash',         // use ant/lib/xxx-xxx folder
-        style: {                    // import style file
-            directory: 'style',     
-            namingRule: 'index',    // use ant/lib/xxx/style/index file
-            ext: 'css'              // js, css or less are all supported.
-        }
+        module: 'lib/[dash]',
+        // import style
+        style: 'style'              // use less style
+        // or
+        style: 'style/index.css'    // use css style
     }]
 ];
 ```
@@ -49,8 +47,10 @@ app.jsx
 import { Button } from 'antd';
 ReactDOM.render(<Button>xxxx</Button>);
         ↓
-require('antd/lib/button/style/index.css');
 var _button = require('antd/lib/button');
+require('antd/lib/button/style');               // import less style
+// or
+require('antd/lib/button/style/index.css');     // import css style
 ReactDOM.render(<_button>xxxx</_button>);
 ```
 
@@ -60,13 +60,11 @@ babel.config.js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'antd-mobile',
-        directory: 'lib',           
-        namingRule: 'dash',         // use for ant/lib/xxx-xxx folder
-        style: {                    
-            directory: 'style',     
-            namingRule: 'index',    // use for ant/lib/xxx/style/index file
-            ext: 'css'              // js, css or less are all supported.
-        }
+        module: 'lib/[dash]',
+        // import style
+        style: 'style'              // use less style
+        // or
+        style: 'style/index.css'    // use css style
     }]
 ];
 ```
@@ -76,8 +74,10 @@ app.jsx
 import { Button } from 'antd-mobile';
 ReactDOM.render(<Button>xxxx</Button>);
         ↓
-require('antd-mobile/lib/button/style/index.css');
 var _button = require('antd-mobile/lib/button');
+require('antd-mobile/lib/button/style');            // import less style
+// or
+require('antd-mobile/lib/button/style/index.css');  // import css style
 ReactDOM.render(<_button>xxxx</_button>);
 ```
 
@@ -86,7 +86,8 @@ babel.config.js
 ```js
 var plugins = [
     ['babel-plugin-import-less', {
-        library: '@material-ui/core'
+        library: '@material-ui/core',
+        module: '[big-camel]'
     }]
 ];
 ```
@@ -105,7 +106,7 @@ babel.config.js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'reactstrap',
-        directory: 'lib'
+        module: 'lib/[big-camel]'
     }]
 ];
 ```
@@ -124,65 +125,42 @@ babel.config.js
 ```js
 var plugins = [
     ['babel-plugin-import-less', {
-        library: '@material-ui/core'
-    }, '@material-ui/core'],        // just add unique name
+        library: 'lodash',
+        module: '[little-camel]'
+    }, 'lodash'],
     ['babel-plugin-import-less', {
-        library: 'reactstrap',
-        directory: 'lib'
-    }, 'reactstrap']                // just add unique name
+        library: 'antd',
+        module: 'lib/[dash]',
+        style: 'style'
+    }, 'antd']
 ];
 ```
 
-### function namingRule
-```js
-var plugins = [
-    ['babel-plugin-import-less', {
-        library: 'reactstrap',
-        directory: 'lib',
-        namingRule: (name) => {
-            return name === 'Button' ? name : 'dash';   // you can return 'little-camel', 'big-camel', 'dash' or 'underline' also.
-        },
-    }]
-];
-```
+## Template
+The following substitutions are available in module and style template strings.
+Template|Demo
+-|-
+[big-camel] | ComponentName
+[little-camel] | componentName
+[dash] | component-name
+[underline] | component_name
 
 ## Options
 ```js
 {
-    library,             
-    directory,           
-    namingRule,          
-    importDefault,       
-    style: {             
-        directory,       
-        namingRule,      
-        ext              
-    }
+    library,
+    importDefault,
+    module,
+    style
 }
 ```
 
 ### library
-String, this option is required.  
-Set library name.
-
-### directory
-String, default to null.  
-Set components directory.
-
-### namingRule
-'little-camel', 'big-camel', 'dash', 'underline' or custom function, default to 'big-camel'.  
-Set component naming rule(folder or file).
-```
-'little-camel'  -> componentName
-'big-camel'     -> ComponentName
-'dash'          -> component-name
-'underline'     -> component_name
-function        -> name => newName
-```
+Library name. Suport String, required.  
 
 ### importDefault
-Boolean, default to true.  
-Transform import type to default, false means addNamed.
+Transform import type to default, false means addNamed. Boolean, default to true.  
+
 ```js
 // true
 import Button from 'antd/lib/button';
@@ -190,49 +168,45 @@ import Button from 'antd/lib/button';
 import { Button } from 'antd/lib/button';
 ```
 
+### module
+Import module path. Suport String and Function, required.  
+function return value also suport template string. return null or false won't import module.
+```js
+var plugins = [
+    ['babel-plugin-import-less', {
+        library: 'xxx',
+        module: name => `lib/${name === 'SCButton' ? 'scButton' : '[little-camel]'}`,
+    }]
+];
+```
+
 ### style
-Boolean or Object, default to false.  
-Import related style file.
-### style.directory
-String, default to components directory.  
-Set styles directory. if start with '/' then style.directory will append to library otherwise append to component folder.
-### style.namingRule
-'little-camel', 'big-camel', 'dash', 'underline', specific name(like 'index') or function, default to null.  
-Set style naming rule(folder or file).
-### style.ext
-String, e.g. 'css', 'less', 'sass' or 'js', default to null.  
-Set style file's extension. if this option is specific, then style.namingRule is files.
-
-## FAQ
-### Cannot read property 'path' of null
-Question
+Import style path with module. Suport String, Function and Array.  
+Function return null or false won't import style.
+if start with '/' then style path will append to library path otherwise append to module path.
 ```js
-var identifierName = this.replace[path$$1.node.name];
-                                       ^
-TypeError: Cannot read property 'path' of null
-```
-Answer   
-clean babel cache.
-
-babel.config.js
-```js
-api.cache(false);   // set cache to false.
-```
-
-webpack.config.js
-```js
-rules: [{
-    test: /\.(js|jsx)?$/,
-    exclude: /node_modules/,
-    use: [
-        {
-            loader: 'babel-loader',
-            options: {
-                cacheDirectory: false       // set cacheDirectory to false.
-            }
-        }
-    ]
-}, {
-    ...
+['babel-plugin-import-less', {
+    library: 'xxx',
+    module: 'lib/[dash]',
+    style: '/less/[little-camel]'
 }]
+
+import { DateTime } from 'xxx';
+        ↓
+var _button = require('xxx/lib/date-time');
+// style option start with "/"
+require('antd/less/dateTime');
+```
+Style to upper path.
+```js
+['babel-plugin-import-less', {
+    library: 'xxx',
+    module: 'lib/[dash]',
+    style: '../less/[little-camel]'
+}]
+
+import { DateTime } from 'xxx';
+        ↓
+var _button = require('xxx/lib/date-time');
+require('xxx/lib/less/dateTime');
 ```

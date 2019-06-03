@@ -5,67 +5,7 @@ exports[`works 1`] = `
 
 var _interopRequireDefault = require(\\"@babel/runtime/helpers/interopRequireDefault\\");
 
-Object.defineProperty(exports, \\"__esModule\\", {
-  value: true
-});
-exports[\\"default\\"] = void 0;
+require(\\"@material-ui/core/lib/less/date-time\\");
 
-var _classCallCheck2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/classCallCheck\\"));
-
-var _createClass2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/createClass\\"));
-
-var _possibleConstructorReturn2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/possibleConstructorReturn\\"));
-
-var _getPrototypeOf2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/getPrototypeOf\\"));
-
-var _inherits2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/inherits\\"));
-
-var _Message = _interopRequireDefault(require(\\"antd/Message\\"));
-
-var _Col = _interopRequireDefault(require(\\"antd/Col\\"));
-
-var _Row = _interopRequireDefault(require(\\"antd/Row\\"));
-
-var _Input = _interopRequireDefault(require(\\"antd/Input\\"));
-
-var _Form = _interopRequireDefault(require(\\"antd/Form\\"));
-
-var FormItem = _Form[\\"default\\"].Item;
-
-var MyInfo =
-/*#__PURE__*/
-function (_Component) {
-  (0, _inherits2[\\"default\\"])(MyInfo, _Component);
-
-  function MyInfo() {
-    (0, _classCallCheck2[\\"default\\"])(this, MyInfo);
-    return (0, _possibleConstructorReturn2[\\"default\\"])(this, (0, _getPrototypeOf2[\\"default\\"])(MyInfo).apply(this, arguments));
-  }
-
-  (0, _createClass2[\\"default\\"])(MyInfo, [{
-    key: \\"render\\",
-    value: function render() {
-      var getFieldDecorator = this.props.form.getFieldDecorator;
-      return React.createElement(_Form[\\"default\\"], null, React.createElement(FormItem, {
-        label: \\"\\\\u59D3\\\\u540D\\"
-      }, getFieldDecorator('contact', {
-        rules: [{
-          required: false,
-          message: '请输入姓名'
-        }]
-      })(React.createElement(_Input[\\"default\\"], {
-        style: {
-          width: 300
-        },
-        placeholder: \\"\\",
-        autoComplete: \\"off\\"
-      }))));
-    }
-  }]);
-  return MyInfo;
-}(Component);
-
-var _default6 = _Form[\\"default\\"].create()(MyInfo);
-
-exports[\\"default\\"] = _default6;"
+var _DateTime = _interopRequireDefault(require(\\"@material-ui/core/lib/DateTime\\"));"
 `;
