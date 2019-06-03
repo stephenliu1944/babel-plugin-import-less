@@ -182,7 +182,7 @@ var plugins = [
 
 ### style
 Import style path with module. Suport String, Function and Array.  
-Function return null or false won't import style.
+Function return null or false won't import style.  
 if start with '/' then style path will append to library path otherwise append to module path.
 ```js
 ['babel-plugin-import-less', {
