@@ -2,10 +2,10 @@
 build
 dist
 bin/*.log
-.idea
-.settings
 *.log
 *.iml
 *.project
 .DS_Store
+.idea
+.settings
 package-lock.json
