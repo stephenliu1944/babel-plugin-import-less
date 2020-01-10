@@ -1,21 +1,26 @@
 # babel-plugin-import-less
-This plugin is used for import file on demand loading.
+该插件用于按需引入文件依赖, 减少不必要的代码导入.
 
 README: [English](https://github.com/stephenliu1944/babel-plugin-import-less/blob/master/README.md) | [简体中文](https://github.com/stephenliu1944/babel-plugin-import-less/blob/master/README-zh_CN.md)
 
-## Install
+## 特性
+- 灵活匹配模块和样式的引用路径
+- 提供四种常用匹配规则
+- 动态匹配路径
+
+## 安装
 ```
 npm install -D babel-plugin-import-less
 ```
 
-## Usage
-### Use for lodash
+## 示例
+### 用于 lodash
 babel.config.js
 ```js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'lodash',
-        module: '[little-camel]'
+        module: '[little-camel]'    // 模块命名规则为小驼峰.
     }]
 ];
 ```
@@ -29,17 +34,17 @@ var _indexOf = require('lodash/indexOf');
 _indexOf([1, 2, 3], 2);
 ```
 
-### Use for antd
+### 用于 antd
 babel.config.js
 ```js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'antd',
-        module: 'lib/[dash]',
+        module: 'lib/[dash]',       // 导入 lib 路径下的模块文件, 模块命名规则为中横线.
         // import style
-        style: 'style'              // use less style
+        style: 'style'              // 使用 less 样式(用于自定义主题), 导入 style/index.js 样式文件.
         // or
-        style: 'style/css'          // use css style
+        style: 'style/css'          // 使用 css 样式, 导入 style/css.js 样式文件
     }]
 ];
 ```
