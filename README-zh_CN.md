@@ -40,11 +40,14 @@ babel.config.js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'antd',
-        module: 'lib/[dash]',       // 按需引入 antd/lib/ 路径下以中横线规则命名的js文件.
-        // import style
-        style: 'style'              // 使用 less 样式(用于项目需要自定义主题), 按需引入 antd/lib/模块名/style/ 路径下的 index.js 文件.
-        // or
-        style: 'style/css'          // 使用 css 样式, 按需引入 antd/lib/模块名/style/ 路径下的 css.js 文件.
+        // 引入模块
+        module: 'es/[dash]',        // 使用 ES 模块, 用于 tree shaking(推荐)
+        // 或
+        module: 'lib/[dash]',       // 使用 commonjs 模块
+        // 引入样式(可选)
+        style: 'style',             // 使用 less 样式(用于项目需要自定义主题)
+        // 或
+        style: 'style/css'          // 使用 css 样式
     }]
 ];
 ```
@@ -54,10 +57,14 @@ app.jsx
 import { Button } from 'antd';
 ReactDOM.render(<Button>xxxx</Button>);
         ↓
+// module: 'es/[dash]'
+var _button = require('antd/es/button');
+// module: 'lib/[dash]'
 var _button = require('antd/lib/button');
-require('antd/lib/button/style');               // import less style
-// or
-require('antd/lib/button/style/css');           // import css style
+// style: 'style'
+require('antd/lib/button/style');
+// style: 'style/css'
+require('antd/lib/button/style/css');
 ReactDOM.render(<_button>xxxx</_button>);
 ```
 
@@ -67,11 +74,14 @@ babel.config.js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'antd-mobile',
-        module: 'lib/[dash]',       // 按需引入 antd-mobile/lib/ 路径下以中横线规则命名的js文件.
-        // import style
-        style: 'style'              // 使用 less 样式(用于项目需要自定义主题), 同上.
-        // or
-        style: 'style/css'          // 使用 css 样式, 同上.
+        // 引入模块
+        module: 'es/[dash]',        // 使用 ES 模块, 用于 tree shaking(推荐)
+        // 或
+        module: 'lib/[dash]',       // 使用 commonjs 模块
+        // 引入样式(可选)
+        style: 'style',             // 使用 less 样式(用于项目需要自定义主题)
+        // 或
+        style: 'style/css'          // 使用 css 样式
     }]
 ];
 ```
@@ -81,10 +91,14 @@ app.jsx
 import { Button } from 'antd-mobile';
 ReactDOM.render(<Button>xxxx</Button>);
         ↓
+// module: 'es/[dash]'
+var _button = require('antd-mobile/es/button');
+// module: 'lib/[dash]'
 var _button = require('antd-mobile/lib/button');
-require('antd-mobile/lib/button/style');            // import less style
-// or
-require('antd-mobile/lib/button/style/css');        // import css style
+// style: 'style'
+require('antd-mobile/lib/button/style');
+// style: 'style/css'
+require('antd-mobile/lib/button/style/css');
 ReactDOM.render(<_button>xxxx</_button>);
 ```
 
@@ -170,9 +184,9 @@ var plugins = [
 按需引入模块时是否以 default 方式引入, boolean类型, 默认true.
 ```js
 // true
-import Button from 'antd/lib/button';
+import Button from 'xxx/lib/button';
 // false
-import { Button } from 'antd/lib/button';
+import { Button } from 'xxx/lib/button';
 ```
 
 ### module
@@ -205,7 +219,7 @@ import { DateTime } from 'xxx';
         ↓
 var _button = require('xxx/lib/date-time');
 // style option start with "/"
-require('antd/less/dateTime');
+require('xxx/less/dateTime');
 ```
 
 从 node_modules/xxx/lib/module-name 的上层路径引入:

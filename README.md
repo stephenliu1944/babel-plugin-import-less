@@ -35,9 +35,12 @@ babel.config.js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'antd',
-        module: 'lib/[dash]',
+        // import module
+        module: 'es/[dash]',        // use ES module for tree shaking
+        // or
+        module: 'lib/[dash]',       // use commonjs module
         // import style
-        style: 'style'              // use less style
+        style: 'style',             // use less style for custom theme
         // or
         style: 'style/css'          // use css style
     }]
@@ -49,9 +52,13 @@ app.jsx
 import { Button } from 'antd';
 ReactDOM.render(<Button>xxxx</Button>);
         ↓
+// module: 'es/[dash]'
+var _button = require('antd/es/button');
+// module: 'lib/[dash]'
 var _button = require('antd/lib/button');
+// style: 'style'
 require('antd/lib/button/style');               // import less style
-// or
+// style: 'style/css'
 require('antd/lib/button/style/css');           // import css style
 ReactDOM.render(<_button>xxxx</_button>);
 ```
@@ -62,9 +69,12 @@ babel.config.js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'antd-mobile',
-        module: 'lib/[dash]',
+        // import module
+        module: 'es/[dash]',        // use ES module for tree shaking
+        // or
+        module: 'lib/[dash]',       // use commonjs module
         // import style
-        style: 'style'              // use less style
+        style: 'style',             // use less style for custom theme
         // or
         style: 'style/css'          // use css style
     }]
@@ -76,10 +86,14 @@ app.jsx
 import { Button } from 'antd-mobile';
 ReactDOM.render(<Button>xxxx</Button>);
         ↓
+// module: 'es/[dash]'
+var _button = require('antd-mobile/es/button');
+// module: 'lib/[dash]'
 var _button = require('antd-mobile/lib/button');
-require('antd-mobile/lib/button/style');            // import less style
-// or
-require('antd-mobile/lib/button/style/css');        // import css style
+// style: 'style'
+require('antd-mobile/lib/button/style');
+// style: 'style/css'
+require('antd-mobile/lib/button/style/css');
 ReactDOM.render(<_button>xxxx</_button>);
 ```
 
@@ -129,12 +143,12 @@ var plugins = [
     ['babel-plugin-import-less', {
         library: 'lodash',
         module: '[little-camel]'
-    }, 'lodash'],                   // need a plugin name
+    }, 'lodash'],                   // need a plugin name 'lodash'
     ['babel-plugin-import-less', {
         library: 'antd',
-        module: 'lib/[dash]',
+        module: 'es/[dash]',
         style: 'style'
-    }, 'antd']                      // need a plugin name
+    }, 'antd']                      // need a plugin name 'antd'
 ];
 ```
 
@@ -165,9 +179,9 @@ Library name. Suport String, required.
 Transform import type to default, false means addNamed. Boolean, default to true.  
 ```js
 // true
-import Button from 'antd/lib/button';
+import Button from 'xxx/lib/button';
 // false
-import { Button } from 'antd/lib/button';
+import { Button } from 'xxx/lib/button';
 ```
 
 ### module
@@ -177,7 +191,7 @@ function return value also suport template string. return null or false won't im
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'xxx',
-        module: name => `lib/${name === 'SCButton' ? 'scButton' : '[little-camel]'}`,
+        module: name => `lib/${name === 'MyButton' ? 'myButton' : '[little-camel]'}`,
     }]
 ];
 ```
@@ -199,7 +213,7 @@ import { DateTime } from 'xxx';
         ↓
 var _button = require('xxx/lib/date-time');
 
-require('antd/less/dateTime');
+require('xxx/less/dateTime');
 ```
 
 style to upper path:
