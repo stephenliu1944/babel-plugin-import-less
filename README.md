@@ -1,5 +1,5 @@
 # babel-plugin-import-less
-This plugin is used for import file on demand loading.
+This plugin is used for import module on demand loading.
 
 README: [English](https://github.com/stephenliu1944/babel-plugin-import-less/blob/master/README.md) | [简体中文](https://github.com/stephenliu1944/babel-plugin-import-less/blob/master/README-zh_CN.md)
 
@@ -129,12 +129,12 @@ var plugins = [
     ['babel-plugin-import-less', {
         library: 'lodash',
         module: '[little-camel]'
-    }, 'lodash'],
+    }, 'lodash'],                   // need a plugin name
     ['babel-plugin-import-less', {
         library: 'antd',
         module: 'lib/[dash]',
         style: 'style'
-    }, 'antd']
+    }, 'antd']                      // need a plugin name
 ];
 ```
 
@@ -170,7 +170,7 @@ import { Button } from 'antd/lib/button';
 ```
 
 ### module
-Import module path. Suport String and Function, required.  
+Import module path. Suport string and function type, required.  
 function return value also suport template string. return null or false won't import module.
 ```js
 var plugins = [
@@ -182,9 +182,11 @@ var plugins = [
 ```
 
 ### style
-Import style path with module. Suport String, Function and Array.  
-Function return null or false won't import style.  
-if start with '/' then style path will append to library path otherwise append to module path.
+Import style path with module. Suport string, function and array type.   
+function return value also suport template string. return null or false won't import module.  
+NOTE: if start with '/' then style path will append to library path otherwise append to module path.
+
+style start with "/":
 ```js
 ['babel-plugin-import-less', {
     library: 'xxx',
@@ -195,10 +197,11 @@ if start with '/' then style path will append to library path otherwise append t
 import { DateTime } from 'xxx';
         ↓
 var _button = require('xxx/lib/date-time');
-// style option start with "/"
+
 require('antd/less/dateTime');
 ```
-Style to upper path.
+
+style to upper path:
 ```js
 ['babel-plugin-import-less', {
     library: 'xxx',

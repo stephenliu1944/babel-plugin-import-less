@@ -1,5 +1,5 @@
 # babel-plugin-import-less
-该插件用于按需引入文件依赖, 减少不必要的代码导入.
+该插件用于按需引入模块依赖, 减少不必要的代码.
 
 README: [English](https://github.com/stephenliu1944/babel-plugin-import-less/blob/master/README.md) | [简体中文](https://github.com/stephenliu1944/babel-plugin-import-less/blob/master/README-zh_CN.md)
 
@@ -20,7 +20,7 @@ babel.config.js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'lodash',
-        module: '[little-camel]'    // 模块命名规则为小驼峰.
+        module: '[little-camel]'    // 模块命名规则为小驼峰. 按需引入 lodash/ 路径下以小驼峰规则命名的js文件.
     }]
 ];
 ```
@@ -40,11 +40,11 @@ babel.config.js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'antd',
-        module: 'lib/[dash]',       // 导入 lib 路径下的模块文件, 模块命名规则为中横线.
+        module: 'lib/[dash]',       // 按需引入 antd/lib/ 路径下以中横线规则命名的js文件.
         // import style
-        style: 'style'              // 使用 less 样式(用于自定义主题), 导入 style/index.js 样式文件.
+        style: 'style'              // 使用 less 样式(用于项目需要自定义主题), 按需引入 antd/lib/模块名/style/ 路径下的 index.js 文件.
         // or
-        style: 'style/css'          // 使用 css 样式, 导入 style/css.js 样式文件
+        style: 'style/css'          // 使用 css 样式, 按需引入 antd/lib/模块名/style/ 路径下的 css.js 文件.
     }]
 ];
 ```
@@ -61,17 +61,17 @@ require('antd/lib/button/style/css');           // import css style
 ReactDOM.render(<_button>xxxx</_button>);
 ```
 
-### Use for antd-mobile
+### 用于 antd-mobile
 babel.config.js
 ```js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'antd-mobile',
-        module: 'lib/[dash]',
+        module: 'lib/[dash]',       // 按需引入 antd-mobile/lib/ 路径下以中横线规则命名的js文件.
         // import style
-        style: 'style'              // use less style
+        style: 'style'              // 使用 less 样式(用于项目需要自定义主题), 同上.
         // or
-        style: 'style/css'          // use css style
+        style: 'style/css'          // 使用 css 样式, 同上.
     }]
 ];
 ```
@@ -88,13 +88,13 @@ require('antd-mobile/lib/button/style/css');        // import css style
 ReactDOM.render(<_button>xxxx</_button>);
 ```
 
-### Use for @material-ui/core
+### 用于 @material-ui/core
 babel.config.js
 ```js
 var plugins = [
     ['babel-plugin-import-less', {
         library: '@material-ui/core',
-        module: '[big-camel]'
+        module: '[big-camel]'                       // 按需引入 @material-ui/core/ 路径下以大驼峰规则命名的js文件.
     }]
 ];
 ```
@@ -107,13 +107,13 @@ var _button = require('@material-ui/core/Button');
 ReactDOM.render(<_button>xxxx</_button>);
 ```
 
-### Use for reactstrap
+### 用于 reactstrap
 babel.config.js
 ```js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'reactstrap',
-        module: 'lib/[big-camel]'
+        module: 'lib/[big-camel]'                   // 按需引入 reactstrap/lib 路径下以大驼峰规则命名的js文件.
     }]
 ];
 ```
@@ -127,32 +127,32 @@ var _button = require('reactstrap/lib/Button');
 ReactDOM.render(<_button>xxxx</_button>);
 ```
 
-### Use multiple plugins
+### 用于多个模块
 babel.config.js
 ```js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'lodash',
         module: '[little-camel]'
-    }, 'lodash'],
+    }, 'lodash'],                               // 需要为插件取一个名字, 'lodash'
     ['babel-plugin-import-less', {
         library: 'antd',
         module: 'lib/[dash]',
         style: 'style'
-    }, 'antd']
+    }, 'antd']                                  // 需要为插件取一个名字, 'antd'
 ];
 ```
 
-## Template
-The following substitutions are available in module and style template strings.
-Template|Example
--|-
-[little-camel] | componentName
-[big-camel] | ComponentName
-[dash] | component-name
-[underline] | component_name
+## 模板
+下列的命名规则模板适用于module和style查找, 并且支持出现在自定义命名规则的返回值中.
+命名规则|示例|说明
+-|-|-
+[little-camel] | componentName | 小驼峰
+[big-camel] | ComponentName | 大驼峰
+[dash] | component-name | 中横线
+[underline] | component_name | 下划线
 
-## Options
+## 配置项
 ```js
 {
     library,
@@ -163,10 +163,10 @@ Template|Example
 ```
 
 ### library
-Library name. Suport String, required.  
+引入的JS库名称, string类型, 必填.  
 
 ### importDefault
-Transform import type to default, false means addNamed. Boolean, default to true.  
+按需引入模块时是否以 default 方式引入, boolean类型, 默认true.
 ```js
 // true
 import Button from 'antd/lib/button';
@@ -175,21 +175,24 @@ import { Button } from 'antd/lib/button';
 ```
 
 ### module
-Import module path. Suport String and Function, required.  
-function return value also suport template string. return null or false won't import module.
+按需引入的模块(以 node_modules/library/ 为根路径), 支持string和function类型, 必填.  
+function 的返回值必须是一个 string 类型, 返回值中包含字符串模板同样被支持, 返回 null 或 false 不会引入指定模块.
 ```js
 var plugins = [
     ['babel-plugin-import-less', {
         library: 'xxx',
-        module: name => `lib/${name === 'SCButton' ? 'scButton' : '[little-camel]'}`,
+        module: name => `lib/${name === 'MyButton' ? 'myButton' : '[little-camel]'}`,
     }]
 ];
 ```
 
 ### style
-Import style path with module. Suport String, Function and Array.  
-Function return null or false won't import style.  
-if start with '/' then style path will append to library path otherwise append to module path.
+按需引入的模块样式(默认以 "node_modules/library/module/" 为根路径), 支持string, function, array类型, 必填.  
+function 类型的返回值必须是一个 string 类型, 返回值中包含字符串模板同样被支持, 返回 null 或 false 不会引入指定样式.  
+array 类型会引入多个文件.  
+注意: 如果以 '/' 开头, 则样式以 "node_modules/library/" 为根路径引入.  
+
+从 node_modules/library/ 路径引入:
 ```js
 ['babel-plugin-import-less', {
     library: 'xxx',
@@ -203,7 +206,8 @@ var _button = require('xxx/lib/date-time');
 // style option start with "/"
 require('antd/less/dateTime');
 ```
-Style to upper path.
+
+从 node_modules/xxx/lib/module-name 的上层路径引入:
 ```js
 ['babel-plugin-import-less', {
     library: 'xxx',
