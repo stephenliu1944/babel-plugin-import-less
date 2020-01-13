@@ -147,10 +147,10 @@ var plugins = [
 下列的命名规则模板适用于module和style查找, 并且支持出现在自定义命名规则的返回值中.
 命名规则|示例|说明
 -|-|-
-[little-camel] | componentName | 小驼峰
-[big-camel] | ComponentName | 大驼峰
-[dash] | component-name | 中横线
-[underline] | component_name | 下划线
+[little-camel]|componentName|小驼峰
+[big-camel]|ComponentName|大驼峰
+[dash]|component-name|中横线
+[underline]|component_name|下划线
 
 ## 配置项
 ```js
