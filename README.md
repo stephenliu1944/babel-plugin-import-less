@@ -140,12 +140,13 @@ var plugins = [
 
 ## Template
 The following substitutions are available in module and style template strings.
-Template|Example
--|-
-[little-camel] | componentName
-[big-camel] | ComponentName
-[dash] | component-name
-[underline] | component_name
+
+|Template|Example|
+|-|-|
+|[little-camel]|componentName|
+|[big-camel]|ComponentName|
+|[dash]|component-name|
+|[underline]|component_name|
 
 ## Options
 ```js
