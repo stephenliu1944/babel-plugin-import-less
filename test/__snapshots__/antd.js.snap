@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`form 1`] = `
+"\\"use strict\\";
+
+var _interopRequireDefault = require(\\"@babel/runtime/helpers/interopRequireDefault\\");
+
+Object.defineProperty(exports, \\"__esModule\\", {
+  value: true
+});
+exports[\\"default\\"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/classCallCheck\\"));
+
+var _createClass2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/createClass\\"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/possibleConstructorReturn\\"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/getPrototypeOf\\"));
+
+var _inherits2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/inherits\\"));
+
+require(\\"antd/es/input/style\\");
+
+var _input = _interopRequireDefault(require(\\"antd/es/input\\"));
+
+require(\\"antd/es/form/style\\");
+
+var _form = _interopRequireDefault(require(\\"antd/es/form\\"));
+
+var FormItem = _form[\\"default\\"].Item;
+
+var MyInfo =
+/*#__PURE__*/
+function (_Component) {
+  (0, _inherits2[\\"default\\"])(MyInfo, _Component);
+
+  function MyInfo() {
+    (0, _classCallCheck2[\\"default\\"])(this, MyInfo);
+    return (0, _possibleConstructorReturn2[\\"default\\"])(this, (0, _getPrototypeOf2[\\"default\\"])(MyInfo).apply(this, arguments));
+  }
+
+  (0, _createClass2[\\"default\\"])(MyInfo, [{
+    key: \\"render\\",
+    value: function render() {
+      var getFieldDecorator = this.props.form.getFieldDecorator;
+      return React.createElement(_form[\\"default\\"], null, React.createElement(FormItem, {
+        label: \\"\\\\u59D3\\\\u540D\\"
+      }, getFieldDecorator('contact', {
+        rules: [{
+          required: false,
+          message: '请输入姓名'
+        }]
+      })(React.createElement(_input[\\"default\\"], {
+        style: {
+          width: 300
+        },
+        placeholder: \\"\\",
+        autoComplete: \\"off\\"
+      }))));
+    }
+  }]);
+  return MyInfo;
+}(Component);
+
+var _default3 = _form[\\"default\\"].create()(MyInfo);
+
+exports[\\"default\\"] = _default3;"
+`;
+
+exports[`input 1`] = `
+"\\"use strict\\";
+
+var _interopRequireWildcard = require(\\"@babel/runtime/helpers/interopRequireWildcard\\");
+
+var _interopRequireDefault = require(\\"@babel/runtime/helpers/interopRequireDefault\\");
+
+Object.defineProperty(exports, \\"__esModule\\", {
+  value: true
+});
+exports[\\"default\\"] = _default2;
+
+require(\\"antd/es/input/style\\");
+
+var _input = _interopRequireDefault(require(\\"antd/es/input\\"));
+
+var _react = _interopRequireWildcard(require(\\"react\\"));
+
+var name = _input[\\"default\\"].name;
+
+function _default2(props) {
+  return _react[\\"default\\"].createElement(\\"div\\", null, _react[\\"default\\"].createElement(_input[\\"default\\"], {
+    name: _input[\\"default\\"].name
+  }, _input[\\"default\\"].name), _react[\\"default\\"].createElement(\\"div\\", null, _input[\\"default\\"].name));
+}"
+`;

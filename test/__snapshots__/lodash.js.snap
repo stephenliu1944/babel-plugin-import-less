@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`isEmpty 1`] = `
+"\\"use strict\\";
+
+var _interopRequireDefault = require(\\"@babel/runtime/helpers/interopRequireDefault\\");
+
+var _isEmpty = _interopRequireDefault(require(\\"lodash/isEmpty\\"));
+
+(0, _isEmpty[\\"default\\"])(null);"
+`;

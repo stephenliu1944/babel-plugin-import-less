@@ -8,7 +8,11 @@ module.exports = function(api) {
     api.cache(false);
 
     var env = process.env.NODE_ENV;
-    var presets = [];
+    var presets = [
+        ['@babel/preset-env', {
+            modules: env === ENV.TEST ? 'auto' : false      // transform esm to cjs, false to keep esm.
+        }]
+    ];
     var plugins = [
         '@babel/plugin-transform-runtime',
         '@babel/plugin-proposal-class-properties',
@@ -27,15 +31,9 @@ module.exports = function(api) {
     switch (env) {
         case ENV.DEVELOPMENT:
         case ENV.PRODUCTION:        
-            presets.push(        
-                ['@babel/preset-env', {
-                    modules: false      // transform esm to cjs, false to keep esm.
-                }]
-            );
             plugins.push('@babel/plugin-external-helpers');
             break;
         case ENV.TEST:
-            presets.push('@babel/preset-env');
             break;
     }
 

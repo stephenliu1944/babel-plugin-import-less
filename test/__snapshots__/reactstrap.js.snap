@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`button 1`] = `
+"\\"use strict\\";
+
+var _interopRequireDefault = require(\\"@babel/runtime/helpers/interopRequireDefault\\");
+
+Object.defineProperty(exports, \\"__esModule\\", {
+  value: true
+});
+exports[\\"default\\"] = void 0;
+
+var _Button = _interopRequireDefault(require(\\"reactstrap/lib/Button\\"));
+
+var _react = _interopRequireDefault(require(\\"react\\"));
+
+var _default2 = function _default2(props) {
+  return _react[\\"default\\"].createElement(_Button[\\"default\\"], {
+    color: \\"danger\\"
+  }, \\"Danger!\\");
+};
+
+exports[\\"default\\"] = _default2;"
+`;

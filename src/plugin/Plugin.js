@@ -1,72 +1,8 @@
-import { join } from 'path';
 import { addSideEffect, addDefault, addNamed } from '@babel/helper-module-imports';
 import { NamingRule } from 'constants/common';
-import { isString, isFunction, isObject, isArray, isEmpty, isBlank, isNotBlank } from 'utils/common';
-import * as helpers from 'helpers/string';
-
-var { toLittleCamel, toBigCamel, toDash, toUnderline } = helpers;
-var { LITTLE_CAMEL, BIG_CAMEL, DASH, UNDERLINE } = NamingRule;
-var RuleHandler = {
-    [LITTLE_CAMEL]: toLittleCamel,
-    [BIG_CAMEL]: toBigCamel,
-    [DASH]: toDash,
-    [UNDERLINE]: toUnderline
-};
-
-function getPathDir(path = '') {
-    // 解析这 6 种 URL:
-    // 'xxx'
-    // '/xxx'
-    // 'xxx/'
-    // '/xxx/'
-    // '/xxx/xxx'
-    // 'xxx.js'
-    // '/xxx.js'
-    // 'xxx/xxx.js'
-    // '/xxx/xxx.js'
-    // 替换掉 '/xxx.js' 部分
-    return path.replace(/(\/?[_\w]+\.\w+)$/, '');
-}
-
-function buildImportNameByRule(importName, module = '') {
-    var newImportName;
-
-    if (module === null || module === false) {
-        return null;
-    }
-
-    if (isFunction(module)) {
-        newImportName = buildImportNameByRule(importName, module(importName));   // 可能 function 返回 'little-camel'等规则
-    } else if (isString(module) && isNotBlank(module)) {                        // 明确的命名
-        module = module.trim();
-
-        // 移除开头的 "/", 没有意义.
-        // if (filename.startsWith('/')) {
-        //     filename = filename.slice(1);
-        // }
-        // 根据4种规则 [xxx], 替换其中的字符
-        // '[dash]/[little].js'.replace(/(\[[\-\w]+\])/g, (match, p1) => {
-        newImportName = module.replace(/(\[[\-\w]+\])/gi, (match, p1) => {
-            var component = p1;
-            var mark = p1.slice(1, -1);
-            var handler = RuleHandler[mark];
-            // 判断是否在 4 种规则中, 没有默认值了
-            if (handler) {
-                component = handler(importName);
-            } 
-            return component;
-        });
-    } else {
-        newImportName = importName;
-    }
-
-    return newImportName;
-}
-
-function joinPath(...args) {
-    var paths = args.map(path => path || '');
-    return join(...paths).replace(/\\/g, '/');
-}
+import { buildImportNameByRule } from 'helpers/string';
+import { getPathDir, joinPath } from 'utils/path';
+import { isString, isFunction, isArray, isEmpty } from 'utils/common';
 
 export default class Plugin {
     _options;
@@ -104,36 +40,27 @@ export default class Plugin {
         /* 
         this.types = null;
         this.replace = null;
-            */
-    }
-    
-    replaceIdentifierNodeName(node, path) {
-        var nodeName = node.name;
-        var newIdentifier = this.markIdentifiers[nodeName]; // { type: 'Identifier', name: '_default4' }
-        
-        if (newIdentifier 
-            && path.scope.hasBinding(nodeName)
-            && path.scope.getBinding(nodeName).path.type === 'ImportSpecifier') {   // 文件中可能有重复的变量名, 确保类型是 ImportSpecifier
-            node.name = newIdentifier.name;
-        }
+        */
     }
 
-    getReplaceIdentifierNode(node) {
-        var identifier;
-
+    // 递归查找指定节点下的Identifier
+    searchIdentifier(node) {
         if (!node) {
             return;
         }
 
+        var identifier;
+
         switch (node.type) {
             case 'Identifier':
+            case 'JSXIdentifier':
                 identifier = node;
                 break;
             case 'MemberExpression':
-                identifier = this.getReplaceIdentifierNode(node.object);    
+                identifier = this.searchIdentifier(node.object);    
                 break;
             case 'CallExpression':
-                identifier = this.getReplaceIdentifierNode(node.callee);    
+                identifier = this.searchIdentifier(node.callee);    
                 break;
         }
 
@@ -141,10 +68,21 @@ export default class Plugin {
     }
 
     replaceIdentifier(node, path) {
-        var identifierNode = this.getReplaceIdentifierNode(node);
+        var identifierNode = this.searchIdentifier(node);
 
         if (identifierNode) {
-            this.replaceIdentifierNodeName(identifierNode, path);
+            this.replaceIdentifierName(identifierNode, path);
+        }
+    }
+
+    replaceIdentifierName(node, path) {
+        var nodeName = node.name;
+        var newIdentifier = this.markIdentifiers[nodeName]; // { type: 'Identifier', name: '_default4' }
+        
+        if (newIdentifier 
+            && path.scope.hasBinding(nodeName)
+            && path.scope.getBinding(nodeName).path.type === 'ImportSpecifier') {   // 文件中可能有重复的变量名, 确保类型是 ImportSpecifier
+            node.name = newIdentifier.name;
         }
     }
 
@@ -195,6 +133,7 @@ export default class Plugin {
         return visitor;
     }
 
+    // ---------------------------------------以下皆为 Visitor 方法---------------------------------------
     /* 
     TODO: getVisitors 扩展对象
     Program = {
@@ -257,35 +196,37 @@ export default class Plugin {
      *  {foo} in import {foo} from "mod" 
      *  {foo as bar} in import {foo as bar} from "mod" 
      */
-    ImportSpecifier(path, state) {
-    }
+    // ImportSpecifier(path, state) {}
 
     /**
      * "foo" in import foo from 'mod'.
      */ 
-    ImportDefaultSpecifier(path, state) {
-    }
+    // ImportDefaultSpecifier(path, state) {}
 
     /**
      * "* as foo" in import * as foo from 'mod'.
      */
-    ImportNamespaceSpecifier(path, state) {
-        
-    }
+    // ImportNamespaceSpecifier(path, state) {}
 
-    // 粒度太小, 使用更大级别的节点类型
-    /* 
-        dentifier(path, state) {}
-     */
+    // 粒度太小, 应该使用更大级别的节点类型
+    // Identifier(path, state) {}
+   
+    // MemberExpression(path, state) {}
 
-    // <Component></Component>
+    /*
+        <Component></Component>
+    */ 
     JSXIdentifier(path, state) {
         // 替换JSX中使用到的标识符名称, 确保一致.
-        this.replaceIdentifierNodeName(path.node, path);
+        this.replaceIdentifier(path.node, path);
     }
 
-    MemberExpression(path, state) {
-        // TODO: 
+    /*
+        {}括号包含的内容
+        <Component item={Form.Item}></Component>
+    */ 
+    JSXExpressionContainer(path, state) {
+        this.replaceIdentifier(path.node.expression, path);
     }
 
     /* 
@@ -313,8 +254,6 @@ export default class Plugin {
         this.replaceIdentifier(path.node.callee, path);
     }
 
-    ReturnStatement(path, state) {
-
-    }
+    // ReturnStatement(path, state) {}
 }
 

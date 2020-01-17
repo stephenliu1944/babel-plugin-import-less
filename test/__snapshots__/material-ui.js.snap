@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`button 1`] = `
+"\\"use strict\\";
+
+var _interopRequireDefault = require(\\"@babel/runtime/helpers/interopRequireDefault\\");
+
+var _Button = _interopRequireDefault(require(\\"@material-ui/core/Button\\"));
+
+function App() {
+  return React.createElement(_Button[\\"default\\"], {
+    variant: \\"contained\\",
+    color: \\"primary\\"
+  }, \\"Hello World\\");
+}"
+`;
